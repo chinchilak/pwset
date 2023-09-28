@@ -1,18 +1,2 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Form</title>
-</head>
-<body>
-    <form method="POST" action="/">
-        <label for="search_query">Search Query (one entry per line):</label><br>
-        <textarea name="search_query" id="search_query" style="width: 400px; height: 120px;"></textarea><br>
-        <label for="exclude_zero">Exclude Zero Quantity:</label>
-        <input type="checkbox" name="exclude_zero" id="exclude_zero" value="1" checked><br>
-        <button type="submit">Search</button>
-    </form>
-    <br><br>
-</body>
-</html>
+{% extends "base.html" %}
+

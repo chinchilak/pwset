@@ -1,39 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Results Table</title>
-    <style>
-        table {
-            border: 1px solid #999;
-            border-collapse: collapse;
-        }
-        th {
-            border: 1px solid #999;
-            padding: 10px;
-            text-align: center;
-            font-size: large;
-            background-color: #999;
-            color: black;
-        }
-        td {
-            border: 1px solid #999;
-            padding: 10px;
-            text-align: left;
-            font-size: larger;
-        }
-    </style>
-</head>
-<body>
-    <form method="POST" action="/">
-        <label for="search_query">Search Query (one entry per line):</label><br>
-        <textarea name="search_query" id="search_query" style="width: 400px; height: 120px;"></textarea><br>
-        <label for="exclude_zero">Exclude Zero Quantity:</label>
-        <input type="checkbox" name="exclude_zero" id="exclude_zero" value="1" checked><br>
-        <button type="submit">Search</button>
-    </form>
-    <br><br>
+{% extends "base.html" %}
+
+{% block content %}
     <table>
         <thead>
             <tr>
@@ -60,5 +27,4 @@
             {% endfor %}
         </tbody>
     </table>
-</body>
-</html>
+{% endblock %}

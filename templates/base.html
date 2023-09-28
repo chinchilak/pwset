@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MTG Shop search form{% endblock %}</title>
+    <style>
+        body {
+            background-color: black;
+            color: #999;
+            font-size: 16px;
+            font-family: Arial, sans-serif;
+        }
+        table {
+            border: 1px solid #999;
+            border-collapse: collapse;
+        }
+        th {
+            border: 1px solid #999;
+            padding: 10px;
+            text-align: center;
+            font-size: large;
+            background-color: #999;
+            color: black;
+        }
+        td {
+            border: 1px solid #999;
+            padding: 10px;
+            text-align: left;
+            font-size: larger;
+        }
+        button {
+            background-color: black;
+            color: #999;
+            border: 1px solid #999;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        textarea {
+            background-color: black;
+            color: #999;
+            padding: 10px;
+            width: 400px;
+            height: 120px;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+    <form method="POST" action="/">
+        <label for="search_query">Search Query (one entry per line):</label><br>
+        <textarea name="search_query" id="search_query"></textarea><br>
+        <label for="exclude_zero">Exclude Zero Quantity:</label>
+        <input type="checkbox" name="exclude_zero" id="exclude_zero" value="1" checked><br><br>
+        <button type="submit">Search</button>
+    </form>
+    <br><br>
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2023 by chinchilak</p>
+    </div>
+</body>
+</html>
