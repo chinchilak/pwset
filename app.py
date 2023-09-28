@@ -2,8 +2,75 @@ from playwright.sync_api import sync_playwright
 from flask import Flask, render_template, request
 
 W = "https://cernyrytir.cz/index.php3?akce=3"
+BL = "https://www.blacklotus.cz/magic-kusove-karty/"
 
-def cerny_rytir(url:str, search_query:str, exclude_zero:bool):
+
+def extract_numbers_from_string(input_list:list) -> None:
+    i = 1
+    current_number = ""
+    while i < len(input_list):
+        for char in input_list[i]:
+            if char.isdigit():
+                current_number += char
+        if len(current_number) > 0:
+            input_list[i] = current_number + " ks"
+        else:
+            input_list[i] = "0 ks"
+        current_number = ""
+        i += 4
+
+def insert_blank_if_not_present(input_list:list, check_string:str) -> None:
+    i = 3
+    while i < len(input_list):
+        if check_string not in input_list[i]:
+            input_list.insert(i, "")
+        else:
+            index = input_list[i].index(check_string)
+            input_list[i] = (input_list[i][index + len(check_string):]).strip()
+            input_list[i] = input_list[i].replace(".", "")
+
+        i += 4
+
+def black_lotus(url:str, search_query:str, exclude_zero:bool) -> list:
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto(url)
+        page.type('input[name="string"]', search_query)
+        page.press('input[name="string"]', 'Enter')
+        page.wait_for_load_state('domcontentloaded')
+
+        target_class = 'search-results'
+        text_values = page.evaluate(f'''() => {{const divs = Array.from(document.querySelectorAll('.{target_class}'));return divs.map(div => div.innerText);}}''')
+        
+        browser.close()
+        
+        filtered_data = [item for item in text_values[0].split('\n') if 'DETAIL' not in item]
+        filtered_data = [item for item in filtered_data if item]
+        insert_blank_if_not_present(filtered_data, "z edice")
+        extract_numbers_from_string(filtered_data)
+
+        splitlist = [filtered_data[i:i + 4] for i in range(0, len(filtered_data), 4)]
+        data = []
+        
+        for item in splitlist:
+            if exclude_zero and "0" in item[1]:
+                pass
+            else:
+                category_data = {
+                    "Shop": "Black lotus",
+                    "Name": item[0],
+                    "Set": item[3],
+                    "Type": "",
+                    "Rarity": "",
+                    "Quantity": item[1],
+                    "Price": item[2]}
+                data.append(category_data)
+
+        return data
+
+
+def cerny_rytir(url:str, search_query:str, exclude_zero:bool) -> list:
     with sync_playwright() as p:
         browser = p.chromium.launch()
         page = browser.new_page()
@@ -29,6 +96,7 @@ def cerny_rytir(url:str, search_query:str, exclude_zero:bool):
                     current_lines.append(line)
                     if len(current_lines) == 6:
                         category_data = {
+                            "Shop": "Černý rytíř",
                             "Name": current_lines[0],
                             "Set": current_lines[1],
                             "Type": current_lines[2],
@@ -57,8 +125,12 @@ def display_table():
         for entry in entries:
             entry = entry.strip()
             if entry:
-                entry_results = cerny_rytir(W, entry, exclude_zero)
-                results.extend(entry_results)
+                cernyrytir = cerny_rytir(W, entry, exclude_zero)
+                blacklotus = black_lotus(BL, entry, exclude_zero)
+
+                results.extend(cernyrytir)
+                results.extend(blacklotus)
+
 
         return render_template('table.html', data=results)
 
