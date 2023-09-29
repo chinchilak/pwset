@@ -228,18 +228,18 @@ def display_table():
                     cernyrytir = cerny_rytir(CR, entry, exclude_zero)
                     results.extend(cernyrytir)
                 except:
-                    errs.append("Failed to get data from" + CR)
+                    errs.append("Failed to get data from: " + CR)
                 
                 try:
                     blacklotus = black_lotus(BL, entry, exclude_zero)
                     results.extend(blacklotus)
                 except:
-                    errs.append("Failed to get data from" + BL)
+                    errs.append("Failed to get data from: " + BL)
                 try:
                     najada = najada_games(NG, entry, exclude_zero)
                     results.extend(najada)
                 except:
-                    errs.append("Failed to get data from" + NG)
+                    errs.append("Failed to get data from: " + NG)
 
         return render_template('table.html', data=results, errors=errs)
 
