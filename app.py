@@ -58,7 +58,8 @@ def najada_games(url:str, search_query:str, exclude_zero:bool) -> list:
         rem_list = ["-", "+", "Shopping list", "To add an item to the shopping list, please log in.", "Add to shopping list", "Wantlist", "If you want to be notified when a card is added to stock, please register."]
         new_list = [s for s in new_list if all(sub not in s for sub in rem_list)]
         new_list = [item for item in new_list if item]
-        new_list = [item for item in new_list if item != "1"]
+        print(new_list)
+        new_list = [item for item in new_list if not item.isdigit()]
 
         split_list = split_list_by_string(new_list, search_query)
         split_list = make_proper_list_from_incomplete_info(split_list)
@@ -66,13 +67,14 @@ def najada_games(url:str, search_query:str, exclude_zero:bool) -> list:
         for each in split_list:
             pos = 5
             current_number = ""
-            for char in each[pos]:
-                if char.isdigit():
-                    current_number += char
-            if len(current_number) > 0:
-                each[pos] = current_number + " ks"
-            else:
-                each[pos] = "0 ks"
+            if len(each) > 0:
+                for char in each[pos]:
+                    if char.isdigit():
+                        current_number += char
+                if len(current_number) > 0:
+                    each[pos] = current_number + " ks"
+                else:
+                    each[pos] = "0 ks"
             current_number = ""
         
         for sublist in split_list:
