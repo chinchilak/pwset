@@ -58,7 +58,6 @@ def najada_games(url:str, search_query:str, exclude_zero:bool) -> list:
         rem_list = ["-", "+", "Shopping list", "To add an item to the shopping list, please log in.", "Add to shopping list", "Wantlist", "If you want to be notified when a card is added to stock, please register."]
         new_list = [s for s in new_list if all(sub not in s for sub in rem_list)]
         new_list = [item for item in new_list if item]
-        print(new_list)
         new_list = [item for item in new_list if not item.isdigit()]
 
         split_list = split_list_by_string(new_list, search_query)
