@@ -99,31 +99,6 @@ def najada_games(url:str, search_query:str, exclude_zero:bool) -> list:
 
         return data
 
-def extract_numbers_from_string(input_list:list) -> None:
-    i = 1
-    current_number = ""
-    while i < len(input_list):
-        for char in input_list[i]:
-            if char.isdigit():
-                current_number += char
-        if len(current_number) > 0:
-            input_list[i] = current_number + " ks"
-        else:
-            input_list[i] = "0 ks"
-        current_number = ""
-        i += 4
-
-def insert_blank_if_not_present(input_list:list, check_string:str) -> None:
-    i = 3
-    while i < len(input_list):
-        if check_string not in input_list[i]:
-            input_list.insert(i, "")
-        else:
-            index = input_list[i].index(check_string)
-            input_list[i] = (input_list[i][index + len(check_string):]).strip()
-            input_list[i] = input_list[i].replace(".", "")
-        i += 4
-
 def black_lotus(url:str, search_query:str, exclude_zero:bool) -> list:
     with sync_playwright() as p:
         browser = p.chromium.launch()
@@ -133,25 +108,51 @@ def black_lotus(url:str, search_query:str, exclude_zero:bool) -> list:
         page.press('input[name="string"]', 'Enter')
         page.wait_for_load_state('domcontentloaded')
 
-        target_class = 'search-results'
-        text_values = page.evaluate(f'''() => {{const divs = Array.from(document.querySelectorAll('.{target_class}'));return divs.map(div => div.innerText);}}''')
+        div_elements = page.query_selector_all('.products.products-block div')
+        text_values = []
+        for div_element in div_elements:
+            text_values.append(div_element.inner_text())
         
         browser.close()
-        
-        filtered_data = [item for item in text_values[0].split('\n') if 'DETAIL' not in item]
-        filtered_data = [item for item in filtered_data if item]
-        insert_blank_if_not_present(filtered_data, "z edice")
-        extract_numbers_from_string(filtered_data)
-        split_list = [filtered_data[i:i + 4] for i in range(0, len(filtered_data), 4)]
 
-        for i, sublist in enumerate(split_list):
-            while len(sublist) < 4:
-                sublist.append("")
-            split_list[i] = sublist
+        filtered_data = [item.split('\n') for item in text_values if search_query.lower() in item.lower() and len(item.split('\n')) >= 4]
+
+        unique_sublists = set()
+        for sublist in filtered_data:
+            unique_sublists.add(tuple(sublist))
+        unique_sublists = [list(sublist) for sublist in unique_sublists]
+
+        filtered_list = []
+        for sublist in unique_sublists:
+            filtered_sublist = [item for item in sublist if item and "DETAIL" not in item]
+            while len(filtered_sublist) < 4:
+                filtered_sublist.append('')
+            
+            edition_element = filtered_sublist[3]
+            if " z edice " in edition_element:
+                index = edition_element.find(' z edice ')
+                if index != -1:
+                    extracted_part = edition_element[index + len(' z edice '):]
+                if extracted_part.endswith('.'):
+                    extracted_part = extracted_part[:-1]
+                filtered_sublist[3] = extracted_part
+            
+            qty_element = filtered_sublist[1]
+            numeric_qty = ""
+            if any(char.isdigit() for char in qty_element):
+                for char in qty_element:
+                    if char.isdigit():
+                        numeric_qty += char
+            if numeric_qty:
+                filtered_sublist[1] = numeric_qty + " ks"
+            else:
+                filtered_sublist[1] = "0 ks"
+            
+            filtered_list.append(filtered_sublist)
 
         data = []
         
-        for item in split_list:
+        for item in filtered_list:
             if exclude_zero and "0" in item[1]:
                 pass
             else:
@@ -231,15 +232,15 @@ def display_table():
                     errs.append("Failed to get data from: " + CR)
                 
                 try:
-                    blacklotus = black_lotus(BL, entry, exclude_zero)
-                    results.extend(blacklotus)
-                except:
-                    errs.append("Failed to get data from: " + BL)
-                try:
                     najada = najada_games(NG, entry, exclude_zero)
                     results.extend(najada)
                 except:
                     errs.append("Failed to get data from: " + NG)
+                # try:
+                blacklotus = black_lotus(BL, entry, exclude_zero)
+                results.extend(blacklotus)
+                # except:
+                    # errs.append("Failed to get data from: " + BL)
 
         return render_template('table.html', data=results, errors=errs)
 
