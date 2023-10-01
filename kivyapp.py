@@ -6,10 +6,10 @@ from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
 from playwright.sync_api import sync_playwright
 
-CR = "https://cernyrytir.cz/index.php3?akce=3"
 TOGGLE = ["Exclude not in stock", "Include not in stock"]
 
-def cerny_rytir(url:str, search_query:str, exclude_zero:bool) -> list:
+def cerny_rytir(search_query:str, exclude_zero:bool) -> list:
+    url = "https://cernyrytir.cz/index.php3?akce=3"
     with sync_playwright() as p:
         browser = p.chromium.launch()
         page = browser.new_page()
@@ -85,7 +85,7 @@ class DataVisualizationApp(App):
     def populate_data_layout(self):
         text = self.text_input.text
         check = self.toggle_state
-        data = cerny_rytir(CR, text, check)
+        data = cerny_rytir(text, check)
 
         num_rows = len(data)
         num_columns = len(data[0])
