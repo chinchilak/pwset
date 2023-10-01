@@ -48,6 +48,7 @@ def najada_games(url:str, search_query:str, exclude_zero:bool) -> list:
         selector = "div.BulkPurchaseItemList"
         page.wait_for_selector(selector)
 
+        page.click('.icon.icon_arrow-down')
 
         target_class = 'BulkPurchaseItemTemplate__body'
         text_values = page.evaluate(f'''() => {{const divs = Array.from(document.querySelectorAll('.{target_class}'));return divs.map(div => div.innerText);}}''')
