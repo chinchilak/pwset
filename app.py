@@ -224,6 +224,7 @@ def display_table():
 
         results = []
         errs = []
+
         for entry in entries:
             entry = entry.strip()
             if entry:
