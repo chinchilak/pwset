@@ -1,5 +1,6 @@
 from playwright.sync_api import sync_playwright
 from flask import Flask, render_template, request
+import time
 
 CR = "https://cernyrytir.cz/index.php3?akce=3"
 BL = "https://www.blacklotus.cz/magic-kusove-karty/"
@@ -225,6 +226,8 @@ def display_table():
         results = []
         errs = []
 
+        start_time = time.time()
+
         for entry in entries:
             entry = entry.strip()
             if entry:
@@ -246,7 +249,10 @@ def display_table():
                 except:
                     errs.append("Failed to get data from: " + BL)
 
-        return render_template('table.html', data=results, errors=errs)
+        elapsed_time = time.time() - start_time
+        elapsed_time = f"{elapsed_time:.2f}"
+
+        return render_template('table.html', data=results, errors=errs, elapsed_time=elapsed_time)
 
     return render_template('form.html')
 
