@@ -1,2 +1,5 @@
-Flask==2.3.3
+Flask==3.0.0
+Kivy==2.2.1
+pandas==2.0.3
 playwright==1.37.0
+streamlit==1.26.0
